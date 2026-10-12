@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#1a221e">
+    <title>Stillpoint AI — Interview Coordinator & Behavioral Analysis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Machine Learning Libraries (MediaPipe Face Mesh + Iris & TensorFlow.js COCO-SSD) -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@latest/dist/coco-ssd.min.js" crossorigin="anonymous"></script>
+    <script src="ml-engine.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <div class="shell">
+      <!-- TOP NAVIGATION BAR -->
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Stillpoint AI Coordinator home">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span>stillpoint<span class="brand-period">.ai</span></span>
+        </a>
+
+        <div class="topbar-center">
+          <div class="stream-source-tabs" role="tablist" aria-label="Video stream source">
+            <button class="source-tab active" id="tab-webcam" role="tab" aria-selected="true">
+              <span class="tab-icon">💻</span> Integrated Webcam
+            </button>
+            <button class="source-tab" id="tab-meet" role="tab" aria-selected="false">
+              <span class="tab-icon">🖥️</span> Google Meet Stream
+            </button>
+            <button class="source-tab" id="tab-ext" role="tab" aria-selected="false">
+              <span class="tab-icon">🧩</span> Extension Bridge (Meet DOM)
+            </button>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="ml-status-pill" id="ml-status-pill">
+            <span class="ml-pulse-dot" id="ml-pulse-dot"></span>
+            <span id="ml-status-text">INITIALIZING AI MODELS...</span>
+          </div>
+          <button class="icon-button help-button" id="help-button" title="Architecture & Privacy Documentation" aria-label="Help">?</button>
+        </div>
+      </header>
+
+      <main>
+        <!-- HEADER INTRODUCTION -->
+        <section class="intro">
+          <div class="intro-row">
+            <div>
+              <div class="eyebrow"><span class="eyebrow-line"></span> AI MEETING COORDINATOR & BEHAVIORAL ANALYZER</div>
+              <h1>Interview Intelligence.<br><span>Live Behavioral Clarity.</span></h1>
+              <p class="intro-copy">
+                Coordinates directly with Google Meet sessions or local cameras. Analyzes ocular gaze micro-gestures, head pose orientation, background disturbances, and device presence in real-time.
+              </p>
+            </div>
+
+            <!-- QUICK STATS BANNER -->
+            <div class="quick-telemetry-banner">
+              <div class="telemetry-card focus-card">
+                <span class="telemetry-label">INTEGRITY & FOCUS</span>
+                <div class="telemetry-value-wrap">
+                  <span class="telemetry-huge" id="hud-focus-val">--</span>
+                  <span class="telemetry-unit">%</span>
+                </div>
+                <span class="status-chip chip-normal" id="hud-focus-chip">READY</span>
+              </div>
+
+              <div class="telemetry-card">
+                <span class="telemetry-label">GAZE & REACTION</span>
+                <span class="telemetry-headline" id="hud-gaze-dir">CENTER</span>
+                <span class="telemetry-sub" id="hud-gaze-detail">Calibrated Screen Gaze</span>
+              </div>
+
+              <div class="telemetry-card">
+                <span class="telemetry-label">CANDIDATE MOOD</span>
+                <span class="telemetry-headline" id="hud-mood-val">NEUTRAL</span>
+                <span class="status-chip chip-normal" id="hud-mood-chip">ENGAGED</span>
+              </div>
+
+              <div class="telemetry-card">
+                <span class="telemetry-label">ROOM & ANOMALIES</span>
+                <span class="telemetry-headline alert-count" id="hud-anomaly-count">0</span>
+                <span class="telemetry-sub" id="hud-disturbance-status">Room: Stable & Quiet</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- MAIN COORDINATOR WORKSPACE -->
+        <section class="workspace" aria-label="Coordinator workspace">
+          <!-- LEFT COLUMN: LIVE VIDEO FEED & AI HUD OVERLAY -->
+          <div class="camera-column">
+            <div class="section-heading">
+              <div>
+                <span class="section-label">01 / LIVE STREAM & COMPUTER VISION HUD</span>
+                <h2 id="stream-heading">Active Candidate Feed</h2>
+              </div>
+              <div class="heading-badges">
+                <span class="live-badge" id="live-badge"><span class="live-dot"></span><span id="live-status">STREAM INACTIVE</span></span>
+                <span class="fps-badge" id="fps-badge">0 FPS</span>
+              </div>
+            </div>
+
+            <!-- VIDEO CONTAINER WITH HUD OVERLAYS -->
+            <div class="camera-card" id="camera-card">
+              <!-- Raw Video Stream -->
+              <video id="camera" autoplay muted playsinline aria-label="Candidate live stream"></video>
+
+              <!-- Real-time AI HUD Visual Overlay Canvas -->
+              <canvas id="hud-canvas" aria-hidden="true"></canvas>
+
+              <!-- Analysis Canvas (Offscreen Processing) -->
+              <canvas id="analysis-canvas" class="visually-hidden" aria-hidden="true"></canvas>
+
+              <!-- Empty/Waiting Placeholder -->
+              <div class="camera-placeholder" id="camera-placeholder">
+                <div class="aperture" aria-hidden="true">
+                  <span class="aperture-ring"></span>
+                  <span class="aperture-center"><span class="aperture-spark"></span></span>
+                </div>
+                <p class="placeholder-title" id="placeholder-title">Ready to coordinate interview</p>
+                <p class="placeholder-copy" id="placeholder-copy">
+                  Choose <strong>Webcam</strong> or <strong>Google Meet Stream</strong>,<br>
+                  then press Start to begin live behavioral monitoring.
+                </p>
+                <div class="meet-hint-box" id="meet-hint-box" style="display:none;">
+                  <span class="meet-pill">GOOGLE MEET MODE</span>
+                  <p>When you click Start, select your <strong>Google Meet Chrome tab</strong> in the browser window picker to stream the candidate directly into Stillpoint.</p>
+                </div>
+                <div class="meet-hint-box ext-hint-box" id="ext-hint-box" style="display:none;">
+                  <span class="meet-pill" style="background:#295441; border:1px solid #3da872;">PHASE 2: EXTENSION BRIDGE</span>
+                  <p>Load the <code>extension</code> folder in <strong>chrome://extensions</strong> (Developer Mode &gt; Load unpacked). Once in a Google Meet call, the companion HUD appears inside Meet and streams live candidate telemetry directly into this master dashboard via BroadcastChannel.</p>
+                </div>
+              </div>
+
+              <!-- Top Left/Right Heads-Up Live Telemetry Overlay -->
+              <div class="camera-overlay top-overlay">
+                <div class="hud-tag">
+                  <span class="hud-live-indicator"></span>
+                  <span id="hud-feed-source">FEED: STANDBY</span>
+                </div>
+                <div class="hud-mesh-toggle">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="toggle-visual-mesh" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <span class="toggle-label">AI Overlay</span>
+                </div>
+              </div>
+
+              <div class="camera-overlay bottom-overlay">
+                <span class="camera-caption"><span class="caption-dot"></span> REAL-TIME ML INFERENCE (MEDIA-PIPE & TENSORFLOW)</span>
+                <span class="camera-timer" id="camera-timer">00:00</span>
+              </div>
+
+              <div class="camera-corners" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            </div>
+
+            <!-- CONTROLS & STREAM COORDINATOR -->
+            <div class="camera-controls">
+              <div class="session-kind">
+                <span class="control-label">INTERVIEW PROFILE</span>
+                <label class="select-wrap">
+                  <select id="session-type" aria-label="Interview profile">
+                    <option value="Technical Interview">Technical Interview (Coding/System)</option>
+                    <option value="Behavioral Interview">Behavioral Interview (HR/Leadership)</option>
+                    <option value="Remote Assessment">Remote Assessment (Strict Proctoring)</option>
+                    <option value="Executive Briefing">Executive Briefing (Discreet HUD)</option>
+                  </select>
+                  <span class="select-chevron" aria-hidden="true">⌄</span>
+                </label>
+              </div>
+
+              <div class="session-kind" id="camera-device-container">
+                <span class="control-label">CAMERA SOURCE</span>
+                <label class="select-wrap">
+                  <select id="camera-device-select" aria-label="Camera device selector">
+                    <option value="integrated">💻 Integrated Webcam (Built-in)</option>
+                  </select>
+                  <span class="select-chevron" aria-hidden="true">⌄</span>
+                </label>
+              </div>
+
+              <div class="control-actions">
+                <button class="button button-secondary" id="camera-button">
+                  <span class="camera-icon" aria-hidden="true"></span>
+                  <span id="camera-button-label">Start Coordinator</span>
+                </button>
+                <button class="button button-secondary" id="calibrate-button" disabled title="Calibrate candidate neutral gaze baseline">
+                  <span>🎯</span> Calibrate Gaze
+                </button>
+                <button class="button button-secondary" id="pip-button" disabled title="Pop out floating HUD overlay over Google Meet, Zoom, or Teams">
+                  <span>📌</span> Pop-out Float HUD
+                </button>
+                <button class="button button-accent" id="snapshot-button" disabled>
+                  <span>📷</span> Snapshot
+                </button>
+                <button class="button button-warning" id="flag-button" disabled>
+                  <span>🚩</span> Flag Moment
+                </button>
+                <button class="button button-primary" id="report-modal-button" disabled>
+                  <span>📊</span> Evaluation Report
+                </button>
+              </div>
+            </div>
+
+            <!-- TELEMETRY METRIC GAUGES MATRIX (6 COMPREHENSIVE CARDS) -->
+            <div class="metrics-grid">
+              <!-- Card 1: 3D Head Biometrics -->
+              <div class="metric-box">
+                <div class="metric-head">
+                  <span class="metric-name">3D HEAD BIOMETRICS</span>
+                  <span class="metric-sub" id="metric-pose-status">Facing Forward</span>
+                </div>
+                <div class="pose-readout">
+                  <div class="pose-item">
+                    <span class="pose-tag">Yaw</span>
+                    <span class="pose-val" id="val-yaw">0°</span>
+                  </div>
+                  <div class="pose-item">
+                    <span class="pose-tag">Pitch</span>
+                    <span class="pose-val" id="val-pitch">0°</span>
+                  </div>
+                  <div class="pose-item">
+                    <span class="pose-tag">Roll</span>
+                    <span class="pose-val" id="val-roll">0°</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card 2: Eye Reactions & Gaze Vector -->
+              <div class="metric-box">
+                <div class="metric-head">
+                  <span class="metric-name">EYE REACTIONS & GAZE</span>
+                  <span class="metric-sub" id="metric-blink-rate">Blinks: 0 /min</span>
+                </div>
+                <div class="ocular-readout">
+                  <div class="progress-bar-wrap">
+                    <div class="progress-bar-label">
+                      <span>Screen Focal Alignment</span>
+                      <span id="gaze-center-pct">100%</span>
+                    </div>
+                    <div class="progress-track">
+                      <div class="progress-fill" id="gaze-bar-fill" style="width: 100%;"></div>
+                    </div>
+                  </div>
+                  <div class="saccade-chip" id="saccade-chip">Saccade Reading Pattern: None</div>
+                </div>
+              </div>
+
+              <!-- Card 3: Facial Mood & Micro-Reactions -->
+              <div class="metric-box">
+                <div class="metric-head">
+                  <span class="metric-name">FACIAL MOOD & EMOTIONS</span>
+                  <span class="metric-sub" id="metric-speech-state">Silent (Listening)</span>
+                </div>
+                <div class="mood-readout">
+                  <div class="progress-bar-wrap">
+                    <div class="progress-bar-label">
+                      <span>Smile / Warmth (AU12)</span>
+                      <span id="metric-smile-val">0%</span>
+                    </div>
+                    <div class="progress-track">
+                      <div class="progress-fill" id="smile-bar-fill" style="width: 0%; background: #3da872;"></div>
+                    </div>
+                  </div>
+                  <div class="progress-bar-wrap" style="margin-top: 6px;">
+                    <div class="progress-bar-label">
+                      <span>Brow Furrow / Focus (AU4)</span>
+                      <span id="metric-brow-val">0%</span>
+                    </div>
+                    <div class="progress-track">
+                      <div class="progress-fill" id="brow-bar-fill" style="width: 0%; background: #cf7955;"></div>
+                    </div>
+                  </div>
+                  <div class="progress-bar-wrap" style="margin-top: 6px;">
+                    <div class="progress-bar-label">
+                      <span>Eyelid Aperture / Alertness (EAR)</span>
+                      <span id="metric-ear-val">0.30 EAR</span>
+                    </div>
+                    <div class="progress-track">
+                      <div class="progress-fill" id="ear-bar-fill" style="width: 100%; background: #3da872;"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card 4: Background & Room Disturbance Monitor -->
+              <div class="metric-box">
+                <div class="metric-head">
+                  <span class="metric-name">ROOM & BACKGROUND</span>
+                  <span class="metric-sub" id="metric-bg-status">Room: Stable</span>
+                </div>
+                <div class="bg-readout">
+                  <div class="progress-bar-wrap">
+                    <div class="progress-bar-label">
+                      <span>Background Motion Energy</span>
+                      <span id="metric-bg-motion-val">0%</span>
+                    </div>
+                    <div class="progress-track">
+                      <div class="progress-fill" id="bg-motion-bar-fill" style="width: 0%; background: #3da872;"></div>
+                    </div>
+                  </div>
+                  <div class="env-row" style="margin-top: 8px;">
+                    <span class="env-key">Lighting Shifts:</span>
+                    <span class="env-val val-green" id="env-light-status">Even / Stable</span>
+                  </div>
+                  <div class="env-row" style="margin-top: 4px;">
+                    <span class="env-key">Acoustic Floor (Mic):</span>
+                    <span class="env-val val-green" id="env-audio-status">-80 dB (Quiet)</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card 5: Devices & Person Detection -->
+              <div class="metric-box">
+                <div class="metric-head">
+                  <span class="metric-name">DEVICES & PERSONS</span>
+                  <span class="metric-sub" id="metric-face-count">Faces: 0</span>
+                </div>
+                <div class="env-readout">
+                  <div class="env-row">
+                    <span class="env-key">Unauthorized Devices:</span>
+                    <span class="env-val val-green" id="env-device-status">None</span>
+                  </div>
+                  <div class="env-row">
+                    <span class="env-key">Secondary Persons:</span>
+                    <span class="env-val val-green" id="env-person-status">None</span>
+                  </div>
+                  <div class="env-row">
+                    <span class="env-key">Hand to Face:</span>
+                    <span class="env-val val-green" id="env-hand-status">Clear</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card 6: Engagement & Speaking Breakdown -->
+              <div class="metric-box">
+                <div class="metric-head">
+                  <span class="metric-name">INTERVIEW ENGAGEMENT</span>
+                  <span class="metric-sub" id="metric-engagement-level">High Engagement</span>
+                </div>
+                <div class="env-readout">
+                  <div class="env-row">
+                    <span class="env-key">Active Speaking Ratio:</span>
+                    <span class="env-val val-green" id="val-speaking-ratio">0%</span>
+                  </div>
+                  <div class="env-row">
+                    <span class="env-key">Nervous Micro-Jumps:</span>
+                    <span class="env-val val-green" id="val-nervous-jumps">Low</span>
+                  </div>
+                  <div class="env-row">
+                    <span class="env-key">Eyebrow & Skin Dynamics:</span>
+                    <span class="env-val val-green" id="val-brow-motion">Stable (0 AU)</span>
+                  </div>
+                  <div class="env-row">
+                    <span class="env-key">Attention Steadiness:</span>
+                    <span class="env-val val-green" id="val-steadiness">98%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p class="consent-note">
+              <span class="lock-icon" aria-hidden="true">⌑</span>
+              All ML inference runs client-side (WASM/WebGPU). Video streams are analyzed in volatile memory and never transmitted to external cloud servers.
+            </p>
+          </div>
+
+          <!-- RIGHT COLUMN: REAL-TIME ANOMALY AUDIT FEED & INTERVIEWER JOURNAL -->
+          <aside class="journal-column">
+            <div class="journal-header">
+              <div>
+                <span class="section-label">02 / LIVE INCIDENT FEED</span>
+                <h2>Audited Events</h2>
+              </div>
+              <div class="incident-counts">
+                <span class="badge-tag tag-warning" title="Notices"><span id="count-notices">0</span> N</span>
+                <span class="badge-tag tag-danger" title="Critical Flags"><span id="count-critical">0</span> C</span>
+                <span class="moment-count" id="moment-count" title="Total Events">00</span>
+              </div>
+            </div>
+
+            <!-- QUICK NOTE INPUT -->
+            <div class="interviewer-note-box">
+              <input type="text" id="interviewer-quick-note" placeholder="Add interviewer note (e.g. Asking Question 3)..." maxlength="160">
+              <button class="button-note-add" id="btn-add-note" disabled>Add Note</button>
+            </div>
+
+            <!-- CHRONOLOGICAL EVENT TIMELINE -->
+            <div class="timeline" id="timeline" aria-live="polite">
+              <div class="empty-state" id="empty-state">
+                <div class="empty-glyph" aria-hidden="true"><span></span><span></span><span></span></div>
+                <p>Telemetry stream ready.</p>
+                <span>Once the session starts, behavioral events (off-screen gaze, device flags, reading patterns) appear here automatically.</span>
+              </div>
+            </div>
+
+            <!-- LIVE SUMMARY CARD -->
+            <div class="signal-card">
+              <div class="signal-header">
+                <span class="signal-icon" aria-hidden="true">✳</span>
+                <span class="signal-title">Coordinator Intelligence Summary</span>
+              </div>
+              <div class="summary-body">
+                <div class="summary-row">
+                  <span>Candidate Focus Score:</span>
+                  <strong id="card-focus-score">100%</strong>
+                </div>
+                <div class="summary-row">
+                  <span>Attention on Screen:</span>
+                  <strong id="card-attention-time">00:00 (100%)</strong>
+                </div>
+                <div class="summary-row">
+                  <span>Off-Screen Glances:</span>
+                  <strong id="card-glance-count">0</strong>
+                </div>
+                <div class="summary-row">
+                  <span>Reading / Notes Suspected:</span>
+                  <strong id="card-saccade-count">0</strong>
+                </div>
+              </div>
+              <div class="signal-footer">
+                <span class="signal-indicator"></span>
+                <span id="signal-status">WAITING FOR SESSION</span>
+                <span class="signal-scope">CLIENT-SIDE ML</span>
+              </div>
+            </div>
+
+            <div class="journal-footer">
+              <span>LIVE INTERVIEW RECORD</span>
+              <button id="clear-button" class="text-button" disabled>Clear timeline</button>
+            </div>
+          </aside>
+        </section>
+
+        <!-- FOOTER ARCHITECTURE NOTE -->
+        <section class="closing-note">
+          <span class="closing-star" aria-hidden="true">✳</span>
+          <p>
+            Stillpoint AI Coordinator combines <em>MediaPipe Iris & 3D Pose Geometry</em> with <em>COCO-SSD Object Vision</em> to provide objective behavioral telemetry for interviewers.
+          </p>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <span>STILLPOINT AI <span class="footer-dot">©</span> 2026</span>
+        <span>ZERO-CLOUD PRIVACY • ON-DEVICE WASM/WEBGPU INFERENCE • GOOGLE MEET READY</span>
+      </footer>
+    </div>
+
+    <!-- POST-INTERVIEW COMPREHENSIVE EVALUATION REPORT MODAL -->
+    <dialog id="report-dialog" class="report-dialog" aria-labelledby="report-title">
+      <div class="report-container">
+        <div class="report-header-banner">
+          <div>
+            <span class="report-badge">STILLPOINT AI AUDIT REPORT</span>
+            <h2 id="report-title">Candidate Interview Behavioral Evaluation</h2>
+            <p class="report-subtitle" id="report-timestamp">Generated on October 11, 2026</p>
+          </div>
+          <button class="dialog-close" id="report-close-button" aria-label="Close report">×</button>
+        </div>
+
+        <div class="report-body">
+          <!-- EXECUTIVE METRICS GRID -->
+          <div class="report-metrics-grid">
+            <div class="report-metric-card">
+              <span class="rm-label">OVERALL FOCUS & INTEGRITY</span>
+              <span class="rm-val" id="rep-focus-score">95%</span>
+              <span class="rm-status chip-normal" id="rep-focus-rating">HIGH ATTENTION</span>
+            </div>
+            <div class="report-metric-card">
+              <span class="rm-label">SCREEN ATTENTION DURATION</span>
+              <span class="rm-val" id="rep-screen-time">14m 20s</span>
+              <span class="rm-sub" id="rep-screen-pct">96.2% of interview</span>
+            </div>
+            <div class="report-metric-card">
+              <span class="rm-label">ANOMALIES & DISTURBANCES</span>
+              <span class="rm-val" id="rep-anomaly-total">2</span>
+              <span class="rm-sub" id="rep-anomaly-sub">0 Critical, 2 Notices</span>
+            </div>
+            <div class="report-metric-card">
+              <span class="rm-label">ENVIRONMENT STABILITY</span>
+              <span class="rm-val val-green" id="rep-env-stability">STABLE</span>
+              <span class="rm-sub">No secondary devices detected</span>
+            </div>
+          </div>
+
+          <!-- AI EXECUTIVE BEHAVIORAL EVALUATION & DIAGNOSTIC INTELLIGENCE -->
+          <div class="report-section ai-eval-section">
+            <div class="ai-eval-header">
+              <div class="ai-eval-header-title">
+                <span class="ai-spark-badge">⚡ STILLPOINT AI SYNTHESIS</span>
+                <h3 class="report-section-title" style="margin: 4px 0 0;">Candidate Interview Behavioral Evaluation</h3>
+              </div>
+              <div class="ai-eval-header-actions">
+                <span class="ai-status-indicator" id="ai-eval-status">AI API: READY</span>
+                <button type="button" class="button button-sm button-secondary" id="btn-run-ai-eval">
+                  <span>🧠</span> Re-Run AI Analysis
+                </button>
+              </div>
+            </div>
+
+            <!-- AI Executive Verdict Banner -->
+            <div class="ai-verdict-box" id="ai-verdict-box">
+              <div class="ai-verdict-header">
+                <span class="ai-verdict-badge" id="ai-verdict-badge">EXECUTIVE VERDICT</span>
+                <h4 class="ai-verdict-title" id="ai-verdict-title">ANALYZING TELEMETRY...</h4>
+              </div>
+              <p class="ai-verdict-text" id="ai-verdict-summary">
+                Awaiting real-time neural synthesis of session biometrics...
+              </p>
+            </div>
+
+            <!-- AI 5-Dimension Competencies Grid -->
+            <div class="ai-competencies-grid" id="ai-competencies-grid">
+              <!-- Dynamically populated from API -->
+            </div>
+
+            <!-- AI Executive Qualitative Narrative -->
+            <div class="ai-narrative-container">
+              <h4 class="ai-subsection-title">Executive Qualitative Behavioral Synthesis</h4>
+              <div class="ai-narrative-body" id="ai-narrative-body">
+                <p>Telemetry processing in progress...</p>
+              </div>
+            </div>
+
+            <!-- AI Strengths & Risk Watch Items Grid -->
+            <div class="ai-findings-grid">
+              <div class="ai-finding-card finding-strengths">
+                <h4 class="ai-subsection-title text-green">Observed Behavioral Strengths</h4>
+                <ul class="ai-findings-list" id="ai-strengths-list">
+                  <li>Analyzing ocular focus and head pose...</li>
+                </ul>
+              </div>
+              <div class="ai-finding-card finding-risks">
+                <h4 class="ai-subsection-title text-orange">Observed Anomalies & Watch Items</h4>
+                <ul class="ai-findings-list" id="ai-risks-list">
+                  <li>Evaluating timeline anomalies and saccades...</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- AI Tailored Interviewer Probing Questions -->
+            <div class="ai-probes-container">
+              <h4 class="ai-subsection-title">AI-Recommended Behavioral Follow-Up Probes</h4>
+              <ol class="ai-probes-list" id="ai-probes-list">
+                <li>Formulating contextual technical verification questions...</li>
+              </ol>
+            </div>
+          </div>
+
+          <!-- BEHAVIORAL BREAKDOWN SECTION -->
+          <div class="report-section">
+            <h3 class="report-section-title">Behavioral Pattern Breakdown</h3>
+            <div class="breakdown-grid">
+              <div class="breakdown-item">
+                <div class="breakdown-head">
+                  <span>Gaze Alignment (Center)</span>
+                  <span id="rep-gaze-pct">94%</span>
+                </div>
+                <div class="rep-bar-track"><div class="rep-bar-fill" id="rep-bar-gaze" style="width: 94%;"></div></div>
+              </div>
+              <div class="breakdown-item">
+                <div class="breakdown-head">
+                  <span>Head Orientation Stability</span>
+                  <span id="rep-pose-pct">91%</span>
+                </div>
+                <div class="rep-bar-track"><div class="rep-bar-fill" id="rep-bar-pose" style="width: 91%;"></div></div>
+              </div>
+              <div class="breakdown-item">
+                <div class="breakdown-head">
+                  <span>Notes / Reading Saccade Risk</span>
+                  <span id="rep-reading-risk">Low (0%)</span>
+                </div>
+                <div class="rep-bar-track"><div class="rep-bar-fill rep-green" id="rep-bar-reading" style="width: 5%;"></div></div>
+              </div>
+              <div class="breakdown-item">
+                <div class="breakdown-head">
+                  <span>Unauthorized Device Risk</span>
+                  <span id="rep-device-risk">None Detected</span>
+                </div>
+                <div class="rep-bar-track"><div class="rep-bar-fill rep-green" id="rep-bar-device" style="width: 0%;"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COMPLETE TIMELINE AUDIT TRAIL -->
+          <div class="report-section">
+            <h3 class="report-section-title">Chronological Event Audit Trail</h3>
+            <div class="report-timeline-table" id="report-timeline-table">
+              <!-- Dynamically populated rows -->
+            </div>
+          </div>
+
+          <!-- SNAPSHOTS PREVIEW IF TAKEN -->
+          <div class="report-section" id="report-snapshots-section" style="display:none;">
+            <h3 class="report-section-title">Flagged Moment Snapshots</h3>
+            <div class="report-snapshots-grid" id="report-snapshots-grid"></div>
+          </div>
+        </div>
+
+        <div class="report-actions">
+          <button class="button button-secondary" id="btn-export-json">💾 Export JSON Audit Log</button>
+          <button class="button button-primary" id="btn-print-report">🖨️ Print / Save as PDF</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- PRIVACY & ARCHITECTURE MODAL -->
+    <dialog id="privacy-dialog" class="privacy-dialog" aria-labelledby="privacy-title">
+      <form method="dialog">
+        <button class="dialog-close" aria-label="Close">×</button>
+        <span class="section-label">SYSTEM ARCHITECTURE</span>
+        <h2 id="privacy-title">Stillpoint AI Coordinator</h2>
+        <p><strong>1. Google Meet & Screen Stream Coordination:</strong><br>
+        Using the HTML5 Screen Capture API (<code>getDisplayMedia</code>), Stillpoint receives candidate video directly from Google Meet without requiring software installation or invasive device drivers.</p>
+        <p><strong>2. Machine Learning Engine:</strong><br>
+        - <strong>MediaPipe FaceMesh & Iris:</strong> 478 3D landmarks, eye aspect ratios, iris gaze vectors, and head pose orientation matrix.<br>
+        - <strong>TensorFlow COCO-SSD:</strong> Object detection for phones, laptops, and multiple faces in frame.</p>
+        <p><strong>3. Privacy Guarantee:</strong><br>
+        All neural networks execute locally in your browser via WebGL and WebAssembly SIMD. No raw video frames are saved to disk or transmitted across the internet.</p>
+        <button class="button button-primary dialog-done">Acknowledge</button>
+      </form>
+    </dialog>
+
+    <!-- NOTIFICATION TOAST -->
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
