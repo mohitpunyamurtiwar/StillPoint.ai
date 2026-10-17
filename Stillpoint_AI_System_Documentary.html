@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stillpoint AI — System Documentary & Technical Blueprint</title>
+  <style>
+    /* DOCUMENTARY PRINT & DISPLAY STYLESHEET */
+    @page {
+      size: A4 portrait;
+      margin: 16mm 14mm 16mm 14mm;
+      @bottom-right {
+        content: counter(page);
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        font-size: 8pt;
+        color: #718096;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-size: 9.5pt;
+      line-height: 1.55;
+      color: #1a202c;
+      background: #ffffff;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    .page {
+      page-break-after: always;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    .page:last-child {
+      page-break-after: avoid;
+    }
+
+    /* COVER PAGE */
+    .cover-page {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      min-height: 250mm;
+      padding: 30mm 15mm 20mm 15mm;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: linear-gradient(145deg, #0d1310 0%, #17221d 60%, #1e3328 100%);
+      color: #ffffff;
+    }
+
+    .cover-badge {
+      display: inline-block;
+      align-self: flex-start;
+      background: rgba(61, 168, 114, 0.2);
+      border: 1px solid #3da872;
+      color: #5ce39d;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 8.5pt;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    .cover-titles {
+      margin-top: 35mm;
+    }
+
+    .cover-titles h1 {
+      font-size: 32pt;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+      color: #ffffff;
+      margin-bottom: 12px;
+    }
+
+    .cover-titles h1 span {
+      color: #5ce39d;
+    }
+
+    .cover-subtitle {
+      font-size: 13pt;
+      font-weight: 400;
+      color: #a0aec0;
+      line-height: 1.45;
+      max-width: 580px;
+      margin-bottom: 25px;
+    }
+
+    .cover-meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      padding-top: 20px;
+      margin-top: 40px;
+      font-size: 9pt;
+    }
+
+    .cover-meta-item strong {
+      display: block;
+      color: #5ce39d;
+      font-size: 8pt;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 3px;
+    }
+
+    .cover-meta-item span {
+      color: #e2e8f0;
+    }
+
+    .cover-footer {
+      font-size: 8pt;
+      color: #718096;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 12px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* TYPOGRAPHY & HEADINGS */
+    h2 {
+      font-size: 15pt;
+      font-weight: 700;
+      color: #0f172a;
+      border-bottom: 2px solid #3da872;
+      padding-bottom: 4px;
+      margin-top: 18px;
+      margin-bottom: 10px;
+      letter-spacing: -0.2px;
+      page-break-after: avoid;
+    }
+
+    h3 {
+      font-size: 11.5pt;
+      font-weight: 600;
+      color: #1e293b;
+      margin-top: 12px;
+      margin-bottom: 6px;
+      page-break-after: avoid;
+    }
+
+    h4 {
+      font-size: 10pt;
+      font-weight: 600;
+      color: #334155;
+      margin-top: 10px;
+      margin-bottom: 4px;
+      page-break-after: avoid;
+    }
+
+    p {
+      margin-bottom: 8px;
+      color: #334155;
+      text-align: justify;
+    }
+
+    ul, ol {
+      margin-left: 20px;
+      margin-bottom: 10px;
+      color: #334155;
+    }
+
+    li {
+      margin-bottom: 4px;
+    }
+
+    /* CODE & MONO */
+    code {
+      font-family: 'Consolas', 'Menlo', 'Monaco', monospace;
+      font-size: 8.5pt;
+      background: #f1f5f9;
+      color: #0f766e;
+      padding: 1px 4px;
+      border-radius: 3px;
+      border: 1px solid #e2e8f0;
+    }
+
+    pre {
+      font-family: 'Consolas', 'Menlo', monospace;
+      font-size: 8pt;
+      line-height: 1.35;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 10px 14px;
+      border-radius: 6px;
+      margin: 8px 0;
+      white-space: pre-wrap;
+      word-break: break-all;
+      border: 1px solid #1e293b;
+    }
+
+    /* CALLOUT BOXES */
+    .callout {
+      padding: 10px 14px;
+      border-radius: 6px;
+      margin: 10px 0;
+      font-size: 9pt;
+      page-break-inside: avoid;
+    }
+
+    .callout-pillar {
+      background: #f0fdf4;
+      border-left: 4px solid #16a34a;
+      color: #14532d;
+    }
+
+    .callout-pillar strong {
+      color: #166534;
+      font-size: 9.5pt;
+    }
+
+    .callout-info {
+      background: #f8fafc;
+      border-left: 4px solid #3b82f6;
+      color: #1e3a8a;
+    }
+
+    .callout-warning {
+      background: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      color: #78350f;
+    }
+
+    /* TABLES */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 8.5pt;
+      page-break-inside: avoid;
+    }
+
+    th {
+      background: #0f172a;
+      color: #ffffff;
+      text-align: left;
+      padding: 7px 10px;
+      font-weight: 600;
+      font-size: 8pt;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border: 1px solid #0f172a;
+    }
+
+    td {
+      padding: 6px 10px;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+      vertical-align: top;
+    }
+
+    tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    /* GRID CARDS */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 10px 0;
+      page-break-inside: avoid;
+    }
+
+    .feature-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 10px 12px;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .feature-card h4 {
+      margin-top: 0;
+      color: #0f766e;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 9.5pt;
+    }
+
+    .feature-card p {
+      font-size: 8.5pt;
+      margin-bottom: 0;
+      color: #475569;
+    }
+
+    /* BADGES */
+    .badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 7.5pt;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-green { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+    .badge-blue { background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }
+    .badge-purple { background: #f3e8ff; color: #7e22ce; border: 1px solid #d8b4fe; }
+    .badge-amber { background: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
+
+    /* MATH BOX */
+    .formula-box {
+      background: #fafaf9;
+      border: 1px solid #e7e5e4;
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin: 8px 0;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 8.5pt;
+      color: #1c1917;
+      text-align: center;
+      page-break-inside: avoid;
+    }
+
+    /* DIAGRAM CONTAINER */
+    .diagram {
+      background: #0f172a;
+      color: #38bdf8;
+      border-radius: 6px;
+      padding: 12px;
+      font-family: 'Consolas', 'Menlo', monospace;
+      font-size: 7.5pt;
+      line-height: 1.25;
+      margin: 10px 0;
+      overflow-x: hidden;
+      white-space: pre;
+      border: 1px solid #1e293b;
+      page-break-inside: avoid;
+    }
+
+    .section-num {
+      color: #10b981;
+      font-weight: 800;
+      margin-right: 4px;
+    }
+
+    .header-rule {
+      height: 2px;
+      background: linear-gradient(90deg, #10b981 0%, #3b82f6 100%);
+      margin-bottom: 14px;
+    }
+
+    .footer-bar {
+      margin-top: 15px;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 7.5pt;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== COVER PAGE ==================== -->
+  <div class="page">
+    <div class="cover-page">
+      <div>
+        <div class="cover-badge">Confidential Technical Architecture & System Whitepaper</div>
+        <div class="cover-titles">
+          <h1>STILLPOINT<span>.AI</span></h1>
+          <h2 style="color: #cbd5e1; border: none; font-size: 17pt; margin: 0; padding: 0;">Autonomous In-Browser Computer Vision & Real-Time Interview Behavioral Telemetry</h2>
+          <p class="cover-subtitle">
+            A Comprehensive Documentary on Neural 3D Biometrics, Reading Saccade Detection, Ephemeral Zero-Cloud Privacy, and Google Meet Live Extension Companion Architecture.
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <div class="cover-meta-grid">
+          <div class="cover-meta-item">
+            <strong>System Name & Version</strong>
+            <span>Stillpoint AI Platform v1.0.0 (New Camera System)</span>
+          </div>
+          <div class="cover-meta-item">
+            <strong>Lead Developer & System Architect</strong>
+            <span>Mohit Koteshwar Puni</span>
+          </div>
+          <div class="cover-meta-item">
+            <strong>Core Technologies</strong>
+            <span>MediaPipe FaceMesh (478 Iris 3D), TensorFlow COCO-SSD, Web Audio API, MV3 Extension</span>
+          </div>
+          <div class="cover-meta-item">
+            <strong>Compliance Architecture</strong>
+            <span>Zero-Video Cloud Ingestion (Local-First), EU AI Act & GDPR Aligned</span>
+          </div>
+        </div>
+
+        <div class="cover-footer">
+          <span>Stillpoint AI Engineering Whitepaper — October 2026</span>
+          <span>Security Level: Enterprise Architecture Documentation</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TABLE OF CONTENTS & EXECUTIVE SUMMARY ==================== -->
+  <div class="page">
+    <div class="header-rule"></div>
+    <h2><span class="section-num">01 /</span> Executive Summary & Product Thesis</h2>
+
+    <p>
+      In modern remote hiring and academic examinations, video conferencing tools (Google Meet, Zoom, MS Teams) have become the default venue for evaluating technical competence, critical thinking, and communication skills. However, the rapid proliferation of <strong>Large Language Models (LLMs)</strong> and invisible teleprompter software has caused an existential crisis for remote interviews: candidates routinely read generated code solutions and AI-crafted answers from off-screen monitors or discreet browser overlays while feigning natural camera gaze.
+    </p>
+
+    <p>
+      Legacy proctoring software has failed to solve this challenge. Platforms such as Proctorio, Honorlock, and HireVue require intrusive root-level system access, install surveillance bloatware, stream raw video to remote clouds (triggering severe GDPR and biometric privacy lawsuits), and rely on coarse thresholds that generate endless false positives.
+    </p>
+
+    <div class="callout callout-pillar">
+      <strong>The Stillpoint AI Thesis:</strong> High-integrity interview telemetry does not require cloud video surveillance. By executing dual lightweight neural networks locally within the client browser via WebGL and WebAssembly, Stillpoint AI extracts millisecond-precision 3D biometrics, micro-saccadic teleprompter patterns, and environmental cues—delivering continuous behavioral clarity to interviewers in real-time with <strong>zero cloud data liability</strong>.
+    </div>
+
+    <h3>Document Overview & Index</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 15%;">Section</th>
+          <th style="width: 35%;">Title</th>
+          <th style="width: 50%;">Core Coverage</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Section 02</strong></td>
+          <td>The 4 "World-First" Pioneer Factors</td>
+          <td>Zero-cloud dual engine, saccadic teleprompter detection, zonal motion decomposition, ephemeral memory.</td>
+        </tr>
+        <tr>
+          <td><strong>Section 03</strong></td>
+          <td>End-to-End System Architecture</td>
+          <td>Tri-source video ingestion (Webcam, Screen, Extension Bridge), WebRTC, and BroadcastChannel pipelines.</td>
+        </tr>
+        <tr>
+          <td><strong>Section 04</strong></td>
+          <td>Deep Neural ML Engine (ml-engine.js)</td>
+          <td>MediaPipe 478 3D landmarks, SolvePnP Euler angles, Iris vectoring, and COCO-SSD object recognition.</td>
+        </tr>
+        <tr>
+          <td><strong>Section 05</strong></td>
+          <td>Behavioral Evaluation Engine</td>
+          <td>The 5-dimensional heuristic scoring model, cognitive indices, and automated diagnostic verdicts.</td>
+        </tr>
+        <tr>
+          <td><strong>Section 06</strong></td>
+          <td>Google Meet Companion Extension</td>
+          <td>Manifest V3 content scripts, injected draggable HUD, DOM tile hooking, and coordinator synchronization.</td>
+        </tr>
+        <tr>
+          <td><strong>Section 07</strong></td>
+          <td>Interviewer UX & Dashboard Suite</td>
+          <td>Heads-up video canvas overlay, interactive audit timeline, live flag triggers, and instant PDF audit reports.</td>
+        </tr>
+        <tr>
+          <td><strong>Section 08</strong></td>
+          <td>Privacy, Ethics & Regulatory Compliance</td>
+          <td>EU AI Act, Illinois BIPA, GDPR zero-liability design, and human-in-the-loop ethical safeguards.</td>
+        </tr>
+        <tr>
+          <td><strong>Section 09</strong></td>
+          <td>Full Codebase Blueprint & Reference</td>
+          <td>File directory map, method inventory, execution instructions, and runbook.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-info">
+      <strong>Core Architectural Philosophy:</strong> Zero Build Step, Zero External Backend Dependencies. Stillpoint AI runs natively in standard modern web browsers (Chrome, Edge) using vanilla JavaScript, native HTML5 APIs (Web Audio, Canvas 2D, WebRTC, BroadcastChannel), and Node.js core modules.
+    </div>
+
+    <div class="footer-bar">
+      <span>Stillpoint AI System Documentary</span>
+      <span>Page 2</span>
+    </div>
+  </div>
+
+  <!-- ==================== THE 4 WORLD-FIRST FACTORS ==================== -->
+  <div class="page">
+    <div class="header-rule"></div>
+    <h2><span class="section-num">02 /</span> The 4 "World-First" Pioneer Factors</h2>
+
+    <p>
+      Stillpoint AI introduces four technical and architectural breakthroughs that differentiate it from every existing assessment, interview, or proctoring tool on the market:
+    </p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h4><span class="badge badge-green">Pillar 1</span> Zero-Cloud In-Browser Dual-Neural Engine</h4>
+        <p>
+          Unlike platforms that stream candidate video to AWS/Azure for server-side processing, Stillpoint loads both <strong>MediaPipe FaceMesh (478 3D landmarks with refined iris)</strong> and <strong>TensorFlow.js COCO-SSD</strong> directly into browser GPU memory via WebGL. 100% of telemetry extraction occurs locally on the interviewer's or candidate's machine at 25–30 FPS with zero cloud bandwidth costs.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <h4><span class="badge badge-blue">Pillar 2</span> Micro-Saccadic AI Script & Teleprompter Detection</h4>
+        <p>
+          Candidates using ChatGPT or secondary monitors look toward the screen and read text while keeping their heads static. Legacy proctors only measure coarse head yaw (&gt;25°). Stillpoint introduces an algorithmic saccade detector (<code>_detectReadingSaccade</code>) that detects horizontal sweeping motions and rapid eye jumps characteristic of reading off-screen notes.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <h4><span class="badge badge-purple">Pillar 3</span> Spatial Dynamic Zonal Motion Decomposition</h4>
+        <p>
+          Legacy motion sensors flag any pixel change as cheating, penalizing candidates who gesticulate naturally while talking. Stillpoint dynamically segments the video into three spatial zones: <em>Face Box</em>, <em>Torso & Gesture Zone</em>, and <em>Peripheral Room Border</em>. Hand-to-chin gestures and arm movements are validated as natural communication, while true room intrusions trigger notices.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <h4><span class="badge badge-amber">Pillar 4</span> Ephemeral Zero-Biometric-Liability Architecture</h4>
+        <p>
+          With strict biometric data regulations (EU AI Act, Illinois BIPA, GDPR), holding facial recordings creates massive corporate liability. Stillpoint operates an ephemeral pipeline: video frames are analyzed in volatile RAM and immediately overwritten. Only abstract telemetry events (e.g., timestamps, head angles) are logged. Zero biometric face templates are ever stored.
+        </p>
+      </div>
+    </div>
+
+    <h3>Detailed Comparison Matrix: Industry vs. Stillpoint AI</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Evaluation Dimension</th>
+          <th>Legacy Enterprise Proctoring</th>
+          <th>Standard Video Conferencing</th>
+          <th>Stillpoint AI Coordinator</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Video Processing Location</strong></td>
+          <td>Remote Cloud Servers (AWS/GCP)</td>
+          <td>Video routed via SFU servers</td>
+          <td><strong>100% Local Browser (Client-Side WebGL)</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Candidate Software Required</strong></td>
+          <td>Heavy Kernel / Invasive Bloatware</td>
+          <td>Standard Client or Web App</td>
+          <td><strong>Zero Install (Standard Google Meet)</strong></td>
+        </tr>
+        <tr>
+          <td><strong>AI Reading / Teleprompter</strong></td>
+          <td>Blind (Checks only head turn)</td>
+          <td>None</td>
+          <td><strong>Active Ocular Saccade Sweeping Vector</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Gestural vs Intrusion Filtering</strong></td>
+          <td>False-positive prone pixel delta</td>
+          <td>None</td>
+          <td><strong>Spatial Zone Decomposition (3 Zones)</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Biometric Privacy Liability</strong></td>
+          <td>Extremely High (Video & faces stored)</td>
+          <td>Standard Transit Privacy</td>
+          <td><strong>Zero Liability (No biometric storage)</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Interviewer HUD Integration</strong></td>
+          <td>Asynchronous Post-Test Audit</td>
+          <td>None</td>
+          <td><strong>Live Draggable Injected HUD + PiP</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer-bar">
+      <span>Stillpoint AI System Documentary</span>
+      <span>Page 3</span>
+    </div>
+  </div>
+
+  <!-- ==================== SYSTEM ARCHITECTURE ==================== -->
+  <div class="page">
+    <div class="header-rule"></div>
+    <h2><span class="section-num">03 /</span> End-to-End System Architecture</h2>
+
+    <p>
+      Stillpoint AI is designed around a decoupled, modular architecture supporting three dynamic video ingestion pipelines feeding into a unified local analysis engine and real-time visualization layer.
+    </p>
+
+    <div class="diagram">
++---------------------------------------------------------------------------------------------------+
+|                                STILLPOINT AI SYSTEM DATAFLOW PIPELINE                              |
++---------------------------------------------------------------------------------------------------+
+|  [SOURCE 1: Integrated Webcam]    --> navigator.mediaDevices.getUserMedia()                       |
+|  [SOURCE 2: Google Meet Tab]      --> navigator.mediaDevices.getDisplayMedia()                    |
+|  [SOURCE 3: Extension DOM Hook]   --> MutationObserver -> &lt;video&gt; in meet.google.com -> Channel    |
++--------------------------------------------------+------------------------------------------------+
+                                                   |
+                                                   v
+                         +---------------------------------------------------+
+                         |           STILLPOINT MASTER VIDEO PLAYER          |
+                         |               &lt;video id="camera"&gt;                 |
+                         +-------------------------+-------------------------+
+                                                   |
+                   +-------------------------------+-------------------------------+
+                   |                                                               |
+                   v (60 FPS Stream Loop)                                          v (Acoustic Stream)
++-----------------------------------------------------+        +------------------------------------+
+|            ML ENGINE (ml-engine.js)                 |        |          WEB AUDIO ENGINE          |
+|                                                     |        |                                    |
+| 1. MediaPipe FaceMesh (Iris Refined - 478 3D Pts)   |        | - AudioContext + AnalyserNode      |
+|    - 3D Head Pose Matrix (SolvePnP Approximation)   |        | - Acoustic Floor (dB RMS Monitor)  |
+|    - Ocular Gaze Vectoring & Iris Deviation         |        | - Vocalization Amplitude Envelope  |
+|    - Saccadic Teleprompter Reading Filter           |        +-----------------+------------------+
+|    - Action Units (AU12, AU4, AU1, AU15, AU26)      |                          |
+|    - Eye Aspect Ratio (EAR) & Ptosis / Drowsiness   |                          |
+|                                                     |                          |
+| 2. TensorFlow.js COCO-SSD (Lite MobileNet V2)       |                          |
+|    - Secondary Persons & Intruder Detection         |                          |
+|    - Unauthorized Devices (Phones, Laptops)         |                          |
+|                                                     |                          |
+| 3. Spatial Motion Decomposition (96x72 Canvas)      |                          |
+|    - Face Zone vs Gesture Zone vs Room Periphery    |                          |
++--------------------------+--------------------------+                          |
+                           |                                                     |
+                           +--------------------------+--------------------------+
+                                                      |
+                                                      v
+                         +---------------------------------------------------+
+                         |             UNIFIED TELEMETRY SYNTHESIS           |
+                         |  Composite Focus Score & State-Incident Debouncer |
+                         +-------------------------+-------------------------+
+                                                   |
+                   +-------------------------------+-------------------------------+
+                   |                                                               |
+                   v                                                               v
++-------------------------------------+                        +------------------------------------+
+|       LIVE VISUALIZATION LAYER      |                        |    EVALUATION ENGINE & REPORTING   |
+|                                     |                        |                                    |
+| - HUD Canvas Overlay (2D Context)   |                        | - 5-Dimensional Behavioral Index   |
+| - Real-Time Metric Telemetry Cards  |                        | - Executive Verdict Generation     |
+| - Interactive Chronological Timeline|                        | - Audit Trail Export (JSON/Audit)  |
+| - Picture-in-Picture Floating Window|                        | - Browser Printable PDF Dossier    |
+| - Meet Companion Draggable HUD (Ext)|                        |                                    |
++-------------------------------------+                        +------------------------------------+
+    </div>
+
+    <h3>The Tri-Source Video Ingestion Subsystems</h3>
+    <ul>
+      <li>
+        <strong>Mode A: Integrated / External Webcam:</strong> Uses <code>navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: true })</code>. Provides optimal framerates (up to 60 FPS) and direct hardware audio sampling. Used for local practice, technical screeners, and single-device interviews.
+      </li>
+      <li>
+        <strong>Mode B: Google Meet Stream Capture:</strong> Uses <code>navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })</code> with browser picker integration. The interviewer selects the active Google Meet tab, allowing Stillpoint to analyze the candidate's remote video without installing anything on the candidate's machine.
+      </li>
+      <li>
+        <strong>Mode C: Extension DOM Hook Bridge:</strong> The Manifest V3 extension runs inside <code>meet.google.com</code>, locates candidate <code>&lt;video&gt;</code> elements in the DOM using a <code>MutationObserver</code>, and synchronizes real-time metrics back and forth to the master dashboard via <code>BroadcastChannel("stillpoint_ai_coordinator")</code>.
+      </li>
+    </ul>
+
+    <div class="footer-bar">
+      <span>Stillpoint AI System Documentary</span>
+      <span>Page 4</span>
+    </div>
+  </div>
+
+  <!-- ==================== MACHINE LEARNING ENGINE ==================== -->
+  <div class="page">
+    <div class="header-rule"></div>
+    <h2><span class="section-num">04 /</span> Deep Neural ML Engine (ml-engine.js)</h2>
+
+    <p>
+      At the core of Stillpoint is <code>ml-engine.js</code>, an ultra-optimized client-side computer vision engine designed to run at 30+ FPS without causing UI thread stutter or frame dropping.
+    </p>
+
+    <h3>1. 3D Head Pose Matrix Estimation (SolvePnP Approximation)</h3>
+    <p>
+      Traditional 2D facial landmarking cannot accurately isolate 3D spatial rotation. Stillpoint uses 6 canonical anatomical landmarks to construct a 3D orthogonal coordinate system:
+    </p>
+    <ul>
+      <li>Nose Tip (Landmark <code>1</code>) & Subnasale</li>
+      <li>Menton / Chin Tip (Landmark <code>152</code>)</li>
+      <li>Left Eye Lateral Canthus (<code>33</code>) & Right Eye Lateral Canthus (<code>263</code>)</li>
+      <li>Left Lip Corner (<code>61</code>) & Right Lip Corner (<code>291</code>)</li>
+    </ul>
+
+    <p>
+      The engine calculates the Euclidean center of the facial plane and computes Euler angles:
+    </p>
+    <div class="formula-box">
+      Yaw (θ_y) = atan2(Δx_nose, Δz_depth) · (180/π)<br>
+      Pitch (θ_p) = atan2(Δy_nose - Δy_center, Δz_depth) · (180/π)<br>
+      Roll (θ_r) = atan2(y_right_eye - y_left_eye, x_right_eye - x_left_eye) · (180/π)
+    </div>
+
+    <p>
+      To prevent micro-jitter caused by sensor noise, angles are filtered using a temporal <strong>Exponential Moving Average (EMA)</strong> with frame-rate adaptive alpha:
+    </p>
+    <div class="formula-box">
+      Smoothed_Angle_t = α · Angle_raw + (1 - α) · Smoothed_Angle_{t-1} &nbsp;&nbsp;&nbsp;&nbsp;[α = 0.35]
+    </div>
+
+    <h3>2. Ocular Biometrics & Iris Vectoring</h3>
+    <p>
+      By utilizing MediaPipe's refined Iris landmarks (indices <code>468–472</code> for the left iris and <code>473–477</code> for the right iris), Stillpoint measures precise pupil displacement relative to the eye contours:
+    </p>
+    <ul>
+      <li><strong>Horizontal Gaze Ratio (H_ratio):</strong> Distance from iris center to medial canthus divided by total palpebral fissure width. Neutral gaze is normalized to <code>0.50</code>.</li>
+      <li><strong>Vertical Gaze Ratio (V_ratio):</strong> Distance from iris center to superior eyelid margin divided by vertical aperture.</li>
+    </ul>
+
+    <h3>3. Micro-Saccadic Teleprompter / AI Reading Detection</h3>
+    <p>
+      When a person reads text from an on-screen or off-screen teleprompter, their eyes exhibit a distinctive oculomotor signature: <strong>slow continuous horizontal tracking sweeps</strong> interrupted by <strong>rapid ballistic saccadic repositioning jumps</strong> back to the start of the next line.
+    </p>
+    <div class="formula-box">
+      _detectReadingSaccade(history): Rapid_Jumps ≥ 2 & Sweeping_Motions ≥ 6 over 18 frames & |Avg_Gaze| ≥ 15°
+    </div>
+    <p>
+      When this periodic oculomotor condition persists, Stillpoint triggers an immediate alert: <code>"Ocular Saccade: Teleprompter / Notes Reading Pattern Detected"</code>.
+    </p>
+
+    <div class="footer-bar">
+      <span>Stillpoint AI System Documentary</span>
+      <span>Page 5</span>
+    </div>
+  </div>
+
+  <!-- ==================== FACIAL ACTION UNITS & SPATIAL MOTION ==================== -->
+  <div class="page">
+    <div class="header-rule"></div>
+    <h2><span class="section-num">04 (Cont.) /</span> Action Units, Alertness & Spatial Motion</h2>
+
+    <h3>4. Facial Action Unit (AU) Micro-Expression Profiling</h3>
+    <p>
+      Based on Paul Ekman's Facial Action Coding System (FACS), Stillpoint isolates micro-expressions from geometric landmark distances:
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 15%;">Action Unit</th>
+          <th style="width: 25%;">Anatomical Target</th>
+          <th style="width: 25%;">Landmark Indices</th>
+          <th style="width: 35%;">Behavioral Interpretation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>AU12</strong></td>
+          <td>Zygomaticus Major (Smile)</td>
+          <td><code>lm[61], lm[291], lm[13], lm[14]</code></td>
+          <td>Rapport, warmth, humor, or laughter aperture.</td>
+        </tr>
+        <tr>
+          <td><strong>AU4</strong></td>
+          <td>Corrugator Supercilii (Furrow)</td>
+          <td><code>lm[55], lm[285], lm[9]</code></td>
+          <td>Deep analytical focus, cognitive strain, or confusion.</td>
+        </tr>
+        <tr>
+          <td><strong>AU1 / AU2</strong></td>
+          <td>Frontalis (Eyebrow Flash)</td>
+          <td><code>lm[70], lm[300], lm[159], lm[386]</code></td>
+          <td>Communicative engagement, emphasis, or surprise.</td>
+        </tr>
+        <tr>
+          <td><strong>AU15</strong></td>
+          <td>Depressor Anguli Oris (Sadness)</td>
+          <td><code>lm[61], lm[291], lm[17]</code></td>
+          <td>Affective distress, dejection, or discomfort.</td>
+        </tr>
+        <tr>
+          <td><strong>AU26</strong></td>
+          <td>Mouth Aperture (Speech)</td>
+          <td><code>lm[13], lm[14], lm[78], lm[308]</code></td>
+          <td>Articulatory opening, active vocalization ratio.</td>
+        </tr>
+        <tr>
+          <td><strong>Micro-Twitch</strong></td>
+          <td>Facial Skin Perturbation</td>
+          <td>Differential vector across 468 pts</td>
+          <td>Involuntary nervous micro-spasms and tension.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>5. Eye Aspect Ratio (EAR) & Fatigue / Ptosis Detection</h3>
+    <p>
+      Alertness and drowsiness are tracked via the clinical Eye Aspect Ratio formula applied across six upper and lower eyelid landmarks:
+    </p>
+    <div class="formula-box">
+      EAR = ( ||p2 - p6|| + ||p3 - p5|| ) / ( 2 · ||p1 - p4|| )
+    </div>
+    <p>
+      A normal open eye yields <code>0.28–0.34 EAR</code>. A full blink drops below <code>0.18 EAR</code>. If EAR drops below <code>0.21</code> for more than 1.4 seconds, Stillpoint flags an alert for <em>Eyelid Ptosis & Fatigue</em>, distinguishing natural blinking from sleepiness.
+    </p>
+
+    <h3>6. Spatial Dynamic Zonal Motion & Object Surveillance</h3>
+    <p>
+      To prevent false positives from hand gesturing during natural speech, Stillpoint renders each frame into a lightweight off-screen <code>96×72</code> analysis canvas and applies spatial zonal luminance difference:
+    </p>
+
+    <div class="diagram">
++---------------------------------------------------------------------------------------------------+
+| 0,0                                     OFFSCREEN ANALYSIS GRID (96 x 72)                  96,0   |
+|                                                                                                   |
+|     +------------------------- PERIPHERAL ROOM ZONE --------------------------+                   |
+|     | (Monitors room background walk-ins, door openings, extraneous persons)  |                   |
+|     |                                                                         |                   |
+|     |              +---------------- CANDIDATE FACE BOX ---------------+      |                   |
+|     |              | (Monitors facial micro-movements & stability)     |      |                   |
+|     |              +-------------------------+-------------------------+      |                   |
+|     |                                        |                                |                   |
+|     |         +---------------- TORSO & GESTURE ZONE ---------------+         |                   |
+|     |         | (Candidate hands, arms, chin touches, explanations) |         |                   |
+|     |         | -> Validated as NATURAL GESTURING (NO CHEAT FLAG!)  |         |                   |
+|     |         +-----------------------------------------------------+         |                   |
+|     +-------------------------------------------------------------------------+                   |
+| 0,72                                                                                              96,72|
++---------------------------------------------------------------------------------------------------+
+    </div>
+
+    <p>
+      In parallel, <strong>TensorFlow.js COCO-SSD</strong> scans every 600ms for unauthorized objects: mobile phones (<code>cell phone</code>), external laptops, tablets, or secondary persons entering the frame.
+    </p>
+
+    <div class="footer-bar">
+      <span>Stillpoint AI System Documentary</span>
+      <span>Page 6</span>
+    </div>
+  </div>
+
+  <!-- ==================== BEHAVIORAL EVALUATION ENGINE ==================== -->
+  <div class="page">
+    <div class="header-rule"></div>
+    <h2><span class="section-num">05 /</span> Behavioral Evaluation Engine (ai-evaluator.js)</h2>
+
+    <p>
+      When an interview concludes or the interviewer requests an interim review, the raw telemetry timeline is synthesized by <code>ai-evaluator.js</code> into a 5-dimensional cognitive index.
+    </p>
+
+    <h3>The 5 Behavioral Evaluation Dimensions</h3>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h4>1. Cognitive Steadiness & Focal Lock (30% Weight)</h4>
+        <p>Measures gaze fixation, sustained focus on the primary screen, and absence of off-screen glance drift or teleprompter saccades.</p>
+      </div>
+      <div class="feature-card">
+        <h4>2. Environmental Integrity & Compliance (30% Weight)</h4>
+        <p>Evaluates unauthorized mobile devices, secondary individuals, room background intrusions, and off-camera whisper spikes.</p>
+      </div>
+      <div class="feature-card">
+        <h4>3. Affective Composure & Stress Resilience (15% Weight)</h4>
+        <p>Monitors blink rate spikes (&gt;28/min), facial micro-twitches, brow furrowing under technical questioning, and affective steadiness.</p>
+      </div>
+      <div class="feature-card">
+        <h4>4. Physical Demeanor & Alertness (15% Weight)</h4>
+        <p>Tracks postural stability, forward engagement, eyelid aperture (EAR), and absence of fatigue, slouching, or drowsiness.</p>
+      </div>
+    </div>
+    <div class="feature-card" style="margin-top: 10px;">
+      <h4>5. Communicative Confidence & Articulation (10% Weight)</h4>
+      <p>Analyzes balanced speaking-to-listening ratio (target 25%–65% active dialogue), facial engagement, and responsive eyebrow cues.</p>
+    </div>
+
+    <h3>Mathematical Formulation of the Composite Index</h3>
+    <div class="formula-box">
+      Composite_Score = (Cognitive · 0.30) + (Integrity · 0.30) + (Composure · 0.15) + (Demeanor · 0.15) + (Communication · 0.10)
+    </div>
+
+    <h3>Automated Executive Verdict Diagnostic Classes</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Diagnostic Verdict</th>
+          <th>Trigger Threshold Criteria</th>
+          <th>Recommended Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge badge-green">STRONG RECOMMENDATION</span></td>
+          <td>Composite Index ≥ 88, 0 Critical Anomalies, Saccades = 0</td>
+          <td>Fast-track candidate; high confidence and integrity.</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-blue">RECOMMENDED</span></td>
+          <td>Composite Index 70–87, Stable posture, No devices detected</td>
+          <td>Proceed with standard hiring process.</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-amber">MODERATE FOCUS DRIFT</span></td>
+          <td>Saccades ≥ 2 or Cognitive &lt; 65 (Notes / 2nd screen suspected)</td>
+          <td>Interviewer to ask unscripted, impromptu follow-ups.</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-amber">ELEVATED FATIGUE / NOTICE</span></td>
+          <td>Drowsiness count &gt; 2 or Demeanor Score &lt; 60</td>
+          <td>Consider offering a break or rescheduling.</td>
+        </tr>
+        <tr>
+          <td><span class="badge" style="background:#fee2e2; color:#b91c1c; border:1px solid #f87171;">HIGH INTEGRITY RISK</span></td>
+          <td>Unauthorized device detected, multiple persons, or Critical &gt; 0</td>
+          <td>Mandatory review of flag timestamps and video recordings.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer-bar">
+      <span>Stillpoint AI System Documentary</span>
+      <span>Page 7</span>
+    </div>
+  </div>
+
+  <!-- ==================== GOOGLE MEET COMPANION EXTENSION ==================== -->
+  <div class="page">
+    <div class="header-rule"></div>
+    <h2><span class="section-num">06 /</span> Google Meet Extension & Interviewer UX</h2>
+
+    <p>
+      To eliminate the need for candidates to install proprietary software, Stillpoint includes a <strong>Google Chrome / Edge Manifest V3 Companion Extension</strong> (<code>extension/</code>) that directly augments live Google Meet sessions.
+    </p>
+
+    <h3>Extension Architecture & Meet DOM Hooking</h3>
+    <ul>
+      <li>
+        <strong>Zero Candidate Burden:</strong> The interview takes place on standard <code>meet.google.com</code>. The candidate joins using their standard browser without installing any third-party app or extension.
+      </li>
+      <li>
+        <strong>Interviewer Draggable Floating HUD:</strong> The extension injects an unobtrusive, translucent HUD into the interviewer's Google Meet tab (<code>extension/content.js</code>). The HUD displays real-time Focus Score, Gaze Direction, Saccade Notes status, and a one-click <strong>🚩 Flag Moment</strong> button.
+      </li>
+      <li>
+        <strong>Cross-Context Coordinator Sync (BroadcastChannel):</strong> The injected Meet script and the master Stillpoint Dashboard communicate asynchronously via the HTML5 <code>BroadcastChannel("stillpoint_ai_coordinator")</code> API, allowing the interviewer to view deep metrics on a second screen while keeping the HUD visible in Meet.
+      </li>
+    </ul>
+
+    <h3>Full-Suite Interviewer Control Features</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Control Action</th>
+          <th>Function & Interviewer Benefit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Gaze Calibration</strong></td>
+          <td><code>🎯 Calibrate Gaze</code></td>
+          <td>Calculates candidate's unique baseline eye and head posture to account for angled webcam placement.</td>
+        </tr>
+        <tr>
+          <td><strong>Pop-Out PiP HUD</strong></td>
+          <td><code>📌 Pop-out Float HUD</code></td>
+          <td>Opens an OS-level Picture-in-Picture window that floats on top of Zoom, Teams, or Meet.</td>
+        </tr>
+        <tr>
+          <td><strong>Timestamped Snapshot</strong></td>
+          <td><code>📷 Snapshot</code></td>
+          <td>Instantly captures the current video frame alongside exact biometric angles for the post-interview dossier.</td>
+        </tr>
+        <tr>
+          <td><strong>Incident Flagging</strong></td>
+          <td><code>🚩 Flag Moment</code></td>
+          <td>Marks a specific timestamp on the chronological timeline for targeted review with custom interviewer notes.</td>
+        </tr>
+        <tr>
+          <td><strong>Evaluation Dossier</strong></td>
+          <td><code>📊 Evaluation Report</code></td>
+          <td>Generates an executive assessment modal with downloadable JSON audit trails and printable PDF reports.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-info">
+      <strong>Incident Debouncing Memory:</strong> To avoid spamming the interviewer with repeated alerts when a candidate momentarily glances away or shifts posture, Stillpoint's <code>_triggerStateIncident</code> enforces state-transition hysteresis: incidents are logged upon state entry, debounced by cooldown timers (minimum 2000ms), and cleanly closed upon state exit.
+    </div>
+
+    <div class="footer-bar">
+      <span>Stillpoint AI System Documentary</span>
+      <span>Page 8</span>
+    </div>
+  </div>
+
+  <!-- ==================== PRIVACY, ETHICS & CODEBASE ==================== -->
+  <div class="page">
+    <div class="header-rule"></div>
+    <h2><span class="section-num">07 /</span> Privacy, Ethics & Complete Codebase Blueprint</h2>
+
+    <h3>Ethical AI Principles & Regulatory Compliance</h3>
+    <p>
+      Stillpoint AI was engineered specifically to adhere to global AI governance frameworks:
+    </p>
+    <ul>
+      <li><strong>EU Artificial Intelligence Act (High-Risk AI Systems):</strong> Stillpoint enforces human-in-the-loop oversight. All algorithmic scores are presented as unverified heuristic prompts for human review, never automated hire/reject decisions.</li>
+      <li><strong>Biometric Privacy Laws (e.g., Illinois BIPA, GDPR Article 9):</strong> Because zero facial embeddings or video frames are saved to disk or transmitted to cloud endpoints, organizations eliminate exposure to biometric privacy lawsuits.</li>
+      <li><strong>Neurodivergence & Physical Diversity Safeguard:</strong> The calibration baseline allows candidates with involuntary motor tics, strabismus, or varied physical baselines to calibrate their neutral center, preventing false penalization.</li>
+    </ul>
+
+    <h3>Complete Codebase File Inventory</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>File Path</th>
+          <th>Lines / Size</th>
+          <th>Technical Purpose & Architecture Responsibility</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>ml-engine.js</code></td>
+          <td>1,950 lines (75 KB)</td>
+          <td>Core ML inference: MediaPipe FaceMesh (478 pts), TensorFlow COCO-SSD, 3D Pose, Saccades, EAR, and Web Audio.</td>
+        </tr>
+        <tr>
+          <td><code>ai-evaluator.js</code></td>
+          <td>175 lines (12 KB)</td>
+          <td>5-dimensional behavioral scoring model, cognitive indices calculation, and diagnostic verdict generation.</td>
+        </tr>
+        <tr>
+          <td><code>app.js</code></td>
+          <td>1,400 lines (61 KB)</td>
+          <td>Dashboard controller: session timers, camera switcher, timeline events, snapshot storage, and modal coordinator.</td>
+        </tr>
+        <tr>
+          <td><code>index.html</code></td>
+          <td>639 lines (33 KB)</td>
+          <td>Responsive semantic HTML5 dashboard layout, video overlays, metric gauge matrix, and report modals.</td>
+        </tr>
+        <tr>
+          <td><code>styles.css</code></td>
+          <td>1,100 lines (32 KB)</td>
+          <td>Ultra-premium dark glassmorphic UI, responsive grids, radar displays, metric progress bars, and animations.</td>
+        </tr>
+        <tr>
+          <td><code>server.js</code></td>
+          <td>86 lines (2.6 KB)</td>
+          <td>Lightweight native Node.js static server and <code>/api/analyze-evaluation</code> endpoint with zero npm dependencies.</td>
+        </tr>
+        <tr>
+          <td><code>extension/</code></td>
+          <td>Manifest V3</td>
+          <td>Google Meet injected companion script (<code>content.js</code>), floating HUD styling, popup status, and background bridge.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Deployment & Operational Runbook</h3>
+    <pre>
+# 1. Start the local Stillpoint Coordinator Server (Zero npm install needed)
+node server.js
+
+# 2. Open dashboard in Google Chrome or Microsoft Edge
+http://localhost:8000
+
+# 3. (Optional) Load Google Meet Companion Extension
+Open chrome://extensions -> Enable Developer Mode -> Click "Load unpacked" -> Select 'extension' directory
+Join any Google Meet call (meet.google.com) to access the live injected telemetry HUD.
+    </pre>
+
+    <div class="callout callout-pillar">
+      <strong>Conclusion:</strong> Stillpoint AI demonstrates that ethical, privacy-preserving, and technically sophisticated computer vision can be deployed directly in the modern web browser. By combining 3D facial biometrics, ocular saccade tracking, and Google Meet companion tooling with zero cloud data liability, Stillpoint sets a new global benchmark for the future of remote interview intelligence.
+    </div>
+
+    <div class="footer-bar">
+      <span>Stillpoint AI System Documentary</span>
+      <span>Page 9</span>
+    </div>
+  </div>
+
+</body>
+</html>

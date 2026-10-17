@@ -63,10 +63,18 @@ Camera and screen-capture permissions are granted by the browser when a session 
 
 The extension is an optional companion; the dashboard can also be used without installing it.
 
+## Technical Documentation & Whitepaper
+
+For an in-depth breakdown of the mathematical models, computer vision pipelines, SolvePnP Euler angle computations, saccadic reading algorithms, and privacy architecture, see:
+- 📄 **[Stillpoint AI System Documentary (PDF)](./Stillpoint_AI_System_Documentary.pdf)** — Publication-ready technical whitepaper & system blueprint.
+- 🌐 **[Stillpoint AI System Documentary (HTML)](./Stillpoint_AI_System_Documentary.html)** — Interactive, printable A4 documentation source.
+
 ## Project layout
 
 | Path | Purpose |
 | --- | --- |
+| `Stillpoint_AI_System_Documentary.pdf` | Comprehensive system documentary, mathematical models, and whitepaper |
+| `Stillpoint_AI_System_Documentary.html` | Printable HTML publication source for the system documentary |
 | `index.html`, `styles.css` | Dashboard structure and presentation |
 | `app.js` | Session controls, source selection, timeline, snapshots, and reports |
 | `ml-engine.js` | Browser-side MediaPipe and TensorFlow.js integration |
